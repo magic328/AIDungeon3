@@ -8,8 +8,10 @@ from generator.gpt2.gpt2_generator import *
 from story import grammars
 from story.story_manager import *
 from story.utils import *
+from story.texttospeech import TTSEngine
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+tts = TTSEngine(key="/Users/john/Documents/Keys/eighth-contact-282708-331d954b13b7.json")
 
 
 def splash():
@@ -52,6 +54,8 @@ def select_game():
 
     # Random story?
     print("Random story?")
+    tts.speak("Random story? Yes or no.")
+    # TODO stt
     console_print("0) yes")
     console_print("1) no")
     choice = get_num_options(2)
@@ -61,6 +65,7 @@ def select_game():
 
     # User-selected story...
     print("\n\nPick a setting.")
+    tts.speak("Pick a setting.")
     settings = data["settings"].keys()
     for i, setting in enumerate(settings):
         print_str = str(i) + ") " + setting
@@ -68,7 +73,11 @@ def select_game():
             print_str += " (recommended)"
 
         console_print(print_str)
+        tts.speak(setting)
     console_print(str(len(settings)) + ") custom")
+    tts.speak("Or custom.")
+
+    # TODO stt
     choice = get_num_options(len(settings) + 1)
 
     if choice == len(settings):
@@ -77,12 +86,18 @@ def select_game():
     setting_key = list(settings)[choice]
 
     print("\nPick a character")
+    tts.speak("Pick a character.")
     characters = data["settings"][setting_key]["characters"]
     for i, character in enumerate(characters):
         console_print(str(i) + ") " + character)
+        tts.speak(character)
+
+    # TODO stt
     character_key = list(characters)[get_num_options(len(characters))]
 
+    tts.speak("What is your name?")
     name = input("\nWhat is your name? ")
+
     setting_description = data["settings"][setting_key]["description"]
     character = data["settings"][setting_key]["characters"][character_key]
 
@@ -92,10 +107,12 @@ def select_game():
 def get_custom_prompt():
     context = ""
     console_print(
-        "\nEnter a prompt that describes who you are and the first couple sentences of where you start "
-        "out ex:\n 'You are a knight in the kingdom of Larion. You are hunting the evil dragon who has been "
-        + "terrorizing the kingdom. You enter the forest searching for the dragon and see' "
+        "\Say a prompt that describes who you are and the first couple sentences of where you start "
+        "out. For example:\n 'You are a knight in the kingdom of Larion. You are hunting the evil dragon who has been "
+        + "terrorizing the kingdom. You enter the forest searching for the dragon and see' ",
+        tts=tts
     )
+    # TODO stt
     prompt = input("Starting Prompt: ")
     return context, prompt
 
@@ -147,17 +164,18 @@ def instructions():
 
 
 def play_aidungeon_2():
+    upload_story = False
+
+    console_print("Initializing. This may take a minute.", tts=tts)
 
     console_print(
-        "AI Dungeon 3 will save and use your actions and game to continually improve AI Dungeon."
-        + " If you would like to disable this enter '/nosaving' as an action. This will also turn off the "
-        + "ability to save games."
+        "AI Dungeon 3 will save and use your actions and game to continually improve itself."
+        + " If you would like to disable this say 'no saving' as an action. This will also turn off the "
+        + "ability to save games.", tts=tts
     )
 
-    upload_story = True
-
-    print("\nInitializing AI Dungeon! (This might take a few minutes)\n")
     generator = GPT2Generator()
+
     story_manager = UnconstrainedStoryManager(generator)
     print("\n")
 
@@ -192,13 +210,13 @@ def play_aidungeon_2():
                     )
 
                 console_print(instructions())
-                print("\nGenerating story...")
+                console_print("\nGenerating story...", tts=tts)
 
                 result = story_manager.start_new_story(
                     prompt, context=context, upload_story=upload_story
                 )
                 print("\n")
-                console_print(result)
+                console_print(result, tts=tts)
 
             else:
                 load_ID = input("What is the ID of the saved game? ")
@@ -206,10 +224,11 @@ def play_aidungeon_2():
                     load_ID, upload_story=upload_story
                 )
                 print("\nLoading Game...\n")
-                console_print(result)
+                console_print(result, tts=tts)
 
         while True:
             sys.stdin.flush()
+            # TODO stt on action
             action = input("> ").strip()
             if len(action) > 0 and action[0] == "/":
                 split = action[1:].split(" ")  # removes preceding slash
@@ -307,10 +326,8 @@ def play_aidungeon_2():
                     action = ""
                     result = story_manager.act(action)
                     console_print(result)
-
                 elif action[0] == '"':
                     action = "You say " + action
-
                 else:
                     action = action.strip()
 
@@ -343,24 +360,24 @@ def play_aidungeon_2():
                     story_manager.story.get_rating()
                     break
                 elif player_died(result):
-                    console_print(result)
+                    console_print(result, tts=tts)
                     console_print("YOU DIED. GAME OVER")
                     console_print("\nOptions:")
                     console_print("0) Start a new game")
                     console_print(
-                        "1) \"I'm not dead yet!\" (If you didn't actually die) "
+                        "1) \"I'm not dead yet!\""
                     )
-                    console_print("Which do you choose? ")
+                    console_print("Which do you choose? ", tts=tts)
                     choice = get_num_options(2)
                     if choice == 0:
                         story_manager.story.get_rating()
                         break
                     else:
-                        console_print("Sorry about that...where were we?")
-                        console_print(result)
+                        console_print("Sorry about that...where were we?", tts=tts)
+                        console_print(result, tts=tts)
 
                 else:
-                    console_print(result)
+                    console_print(result, tts=tts)
 
 
 if __name__ == "__main__":

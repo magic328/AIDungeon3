@@ -5,6 +5,8 @@ from difflib import SequenceMatcher
 import yaml
 from profanityfilter import ProfanityFilter
 
+from story.texttospeech import TTSEngine
+
 YAML_FILE = "story/story_data.yaml"
 
 
@@ -14,7 +16,7 @@ with open("story/censored_words.txt", "r") as f:
 pf = ProfanityFilter(custom_censor_list=censored_words)
 
 
-def console_print(text, width=75):
+def console_print(text, width=75, tts=None):
     last_newline = 0
     i = 0
     while i < len(text):
@@ -27,6 +29,8 @@ def console_print(text, width=75):
             last_newline += 1
         i += 1
     print(text)
+    if tts != None:
+        tts.speak(text)
 
 
 def get_similarity(a, b):
