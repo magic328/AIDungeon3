@@ -130,7 +130,7 @@ def get_curated_exposition(
 
 
 def instructions():
-    text = "\nAI Dungeon 2 Instructions:"
+    text = "\nAI Dungeon 3 Instructions:"
     text += '\n Enter actions starting with a verb ex. "go to the tavern" or "attack the orc."'
     text += '\n To speak enter \'say "(thing you want to say)"\' or just "(thing you want to say)" '
     text += "\n\nThe following commands can be entered for any action: "
@@ -149,7 +149,7 @@ def instructions():
 def play_aidungeon_2():
 
     console_print(
-        "AI Dungeon 2 will save and use your actions and game to continually improve AI Dungeon."
+        "AI Dungeon 3 will save and use your actions and game to continually improve AI Dungeon."
         + " If you would like to disable this enter '/nosaving' as an action. This will also turn off the "
         + "ability to save games."
     )
